@@ -413,12 +413,12 @@ function editCellValue(context) {
     return; // User cancelled the prompt
   }
 
-  var rowIdx    = cell.closest("tr").index();
-  var colIdx    = cell.index();
-  var tableName = $("#results").data("table");
-  var colName   = $("#results_header th").eq(colIdx).data("name");
-  var pkColumn  = $("#results_header th").eq(0).data("name");
-  var pkValue   = $("#results_body tr").eq(rowIdx).find("td").eq(0).text();
+  var rowIdx      = cell.closest("tr").index();
+  var colIdx      = cell.index();
+  var tableName   = $("#results").data("table");
+  var colName     = $("#results_header th").eq(colIdx).data("name");
+  var pkColumn    = $("#results_header th").eq(0).data("name");
+  var pkValue     = $("#results_body tr").eq(rowIdx).find("td").eq(0).text();
   var updateQuery = `UPDATE ${tableName} SET "${colName}" = '${newValue}' WHERE "${pkColumn}" = '${pkValue}';`;
 
   executeQuery(updateQuery, function(data) {
