@@ -23,7 +23,7 @@ function applySettings(settings) {
     document.documentElement.style.setProperty('--navbar-color', settings.navbarColor);
     if (settings.logo) {
         // Display logo wrapper
-        $('#sidebar .sidebar-brand').css('display', 'block');
+        $('#sidebar .sidebar-brand .sidebar-brand-wrapper').css('display', 'flex');
     }
 }
 

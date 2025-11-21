@@ -77,7 +77,6 @@
 }
 
 #sidebar .sidebar-brand {
-  display: none;
   background: var(--navbar-color);
   height: 50px;
   flex: none;
@@ -88,6 +87,7 @@
   align-items: center;
   height: 100%;
   padding: 10px;
+  display: none;
 }
 
 #sidebar .sidebar-brand small {
