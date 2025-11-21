@@ -16,6 +16,9 @@ Very easy to use and packs just the right amount of features.
 
 [See application screenshots](SCREENS.md)
 
+You can add logo in settings.yml. You can insert, edit or add row :
+<img width="1185" height="423" alt="image" src="https://github.com/user-attachments/assets/9d9db170-a767-4ce6-9d34-951dc0872627" />
+
 ## Features
 
 - Cross-platform: Mac/Linux/Windows (64bit).
