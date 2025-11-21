@@ -19,6 +19,7 @@
   <script type="text/javascript" src="static/js/bootstrap3-typeahead.min.js"></script>
   <script type="text/javascript" src="static/js/app.js"></script>
   <script type="text/javascript" src="static/js/base64.js"></script>
+  <script type="text/javascript" src="static/js/settings.js"></script>
 </head>
 <body>
   <div id="main">
@@ -40,12 +41,15 @@
       </div>
     </div>
     <div id="sidebar">
-      <div class="current-database">
-        <div class="wrap">
-          <i class="fa fa-database"></i> <span class="current-database-name" id="current_database"></span>
-          <input class="typeahead" id="database_search" type="text" placeholder="Search database" autocomplete="off" />
-          <span class="refresh" id="refresh_tables" title="Refresh tables list"><i class="fa fa-refresh"></i></span>
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-wrapper">
+          <img src="./logo.png" alt="sidebar-brand">
         </div>
+      </div>
+      <div class="current-database">
+        <i class="fa fa-database"></i> <span class="current-database-name" id="current_database"></span>
+        <input class="typeahead" id="database_search" type="text" placeholder="Search database" autocomplete="off" />
+        <span class="refresh" id="refresh_tables" title="Refresh tables list"><i class="fa fa-refresh"></i></span>
       </div>
       <div class="objects-search">
         <div class="wrap">
@@ -55,9 +59,7 @@
         </div>
       </div>
       <div class="tables-list">
-        <div class="wrap">
-          <div id="objects"></div>
-        </div>
+        <div id="objects"></div>
       </div>
       <div class="table-information">
         <div class="wrap">
@@ -104,7 +106,13 @@
         </div>
         <div id="input_resize_handler"></div>
       </div>
+
       <div id="output">
+        <div class="table-row-actions">
+          <button type="button" class="btn btn-primary btn-sm insert_row_btn" onclick="showInsertRowFromStructure($('#results').data('table'))"><i class="fa fa-plus"></i>Insert row</button>
+          <div id="insert_row"></div>
+        </div>
+
         <div class="wrapper">
           <table id="results" class="table">
             <thead id="results_header"></thead>
@@ -113,6 +121,7 @@
           <div id="results_view"></div>
         </div>
       </div>
+
       <div id="pagination">
         <form class="filters" action="#" id="rows_filter">
           <span>Search</span>
@@ -342,10 +351,11 @@
   </div>
   <div id="results_row_menu">
     <ul class="dropdown-menu" role="menu">
-      <li><a href="#" data-action="edit_value">Edit Value</a></li>
-      <li><a href="#" data-action="display_value">Display Value</a></li>
-      <li><a href="#" data-action="copy_value">Copy Value</a></li>
-      <li><a href="#" data-action="filter_by_value">Filter Rows By Value</a></li>
+      <li><a href="#" data-action="edit_value"><i class="fa fa-edit"></i> Edit Value</a></li>
+      <li><a href="#" data-action="display_value"><i class="fa fa-expand"></i> Display Value</a></li>
+      <li><a href="#" data-action="copy_value"><i class="fa fa-copy"></i> Copy Value</a></li>
+      <li><a href="#" data-action="delete_row"><i class="fa fa-remove"></i> Delete Row</a></li>
+      <li><a href="#" data-action="filter_by_value"><i class="fa fa-filter"></i> Filter Rows By Value</a></li>
     </ul>
   </div>
   <div id="error_banner"></div>

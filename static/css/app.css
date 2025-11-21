@@ -8,7 +8,7 @@
   left: 250px;
   right: 0;
   height: 50px;
-  background: #79589f;
+  background: var(--navbar-color);
 }
 
 #nav ul {
@@ -72,71 +72,88 @@
   bottom: 0px;
   box-sizing: border-box;
   background: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+}
+
+#sidebar .sidebar-brand {
+  display: none;
+  background: var(--navbar-color);
+  height: 50px;
+  flex: none;
+}
+
+#sidebar .sidebar-brand-wrapper {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 10px;
+}
+
+#sidebar .sidebar-brand small {
+  font-weight: bold;
+  color: white;
+  margin-left: 5px;
+}
+
+#sidebar .sidebar-brand img {
+  height: 40px;
 }
 
 #sidebar .current-database {
-  position: fixed;
-  left: 0px;
-  top: 0px;
-  width: 250px;
-  height: 50px;
-  line-height: 50px;
   font-weight: bold;
   font-size: 14px;
-  color: #fff;
-  background: #79589f;
-  z-index: 900;
-}
-
-#sidebar .current-database .wrap {
-  position: relative;
-  height: 50px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  height: 48px;
+  min-height: 48px;
+  border-bottom: 1px solid #eee;
 }
 
 #sidebar .current-database span.current-database-name {
-  margin-left: 30px;
+  margin-left: 10px;
+  vertical-align: middle;
   display: inline-block;
-  width: 200px;
-  height: 50px;
   white-space: nowrap;
-  overflow: hidden;
   text-overflow: ellipsis;
   cursor: pointer;
+  width: 100%;
+  overflow: hidden;
+  /* Moves the database name away from the refresh button */
+  margin-right: 10px;
 }
 
 #sidebar .current-database i.fa-database {
-  position: absolute;
-  left: 8px;
-  top: 18px;
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 8px;
 }
 
 #sidebar .current-database input.typeahead {
   margin-left: 30px;
   display: inline-block;
-  width: 200px;
-  height: 50px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  background: var(--navbar-color);
+  width: 200px;
+  font-weight: normal;
+  outline: none;
+  border: 0px none;
+  position: absolute;
+  left: 10px;
+  background: #a9a9a959;
 }
 
 #sidebar .current-database input.typeahead {
   display: none;
-  background: #79589f;
-  width: 200px;
-  height: 22px;
-  color: #fff;
-  font-weight: normal;
-  outline: none;
-  border: 0px none;
 }
 
 #sidebar .current-database span.refresh {
   position: absolute;
-  top: 0px;
-  right: 6px;
+  right: 16px;
   cursor: pointer;
-  color: #fff;
   display: none;
 }
 
@@ -144,16 +161,11 @@
   display: inline-block;
 }
 
-#sidebar .current-database input.typeahead::-webkit-input-placeholder {
-  color: #fff;
-}
-
 #sidebar ul.typeahead {
   position: absolute;
   margin-left: 30px;
   overflow-y: auto;
   max-height: 300px;
-  z-index: 999;
 }
 
 #sidebar ul.typeahead a {
@@ -162,12 +174,7 @@
 }
 
 #sidebar .objects-search {
-  position: fixed;
-  top: 50px;
-  left: 0px;
   width: 250px;
-  height: 30px;
-  overflow: hidden;
 }
 
 #sidebar .objects-search .wrap {
@@ -213,32 +220,21 @@
 }
 
 #sidebar div.tables-list {
-  position: fixed;
   width: 250px;
-  top: 80px;
-  left: 0px;
-  bottom: 130px;
   overflow: auto;
 }
-
-#sidebar div.tables-list .wrap {
-  height: 100%;
-  overflow: auto;
-}
-
 
 #sidebar div.tables-list #tables, #sequences, #objects {
   font-size: 12px;
 }
 
 #sidebar div.table-information {
-  position: fixed;
   width: 250px;
-  left: 0px;
   height: 130px;
-  bottom: 0px;
   box-sizing: border-box;
   cursor: default;
+  flex: none;
+  margin-top: auto;
 }
 
 #sidebar div.table-information .wrap {
@@ -280,6 +276,7 @@
   bottom: 0px;
   right: 0px;
   overflow: auto;
+  background-color: #33333312;
 }
 
 #input {
@@ -291,6 +288,7 @@
 #input .input-wrapper {
   height: 250px;
   padding-top: 12px;
+  background-color: white;
 }
 
 #input_resize_handler {
@@ -391,6 +389,27 @@
   overflow: auto;
 }
 
+#output .table-row-actions {
+  padding: 3px;
+  display: none;
+}
+
+#output .table-row-actions i {
+  margin-right: 4px;
+}
+
+#output .table-row-actions #insert_row {
+  align-items: center;
+  padding: 5px;
+  display: flex;
+  margin-top: 5px;
+  display: none;
+}
+
+#output .table-row-actions #insert_row .table {
+  background: white;
+}
+
 #pagination {
   display: none;
   position: absolute;
@@ -475,6 +494,10 @@
   color: #999;
   line-height: 32px;
   height: 32px;
+}
+
+#results_header {
+  background: white;
 }
 
 #results {
@@ -610,6 +633,10 @@
   display: block;
 }
 
+#results_row_menu li i {
+  margin-right: 4px;
+}
+
 .full #output {
   top: 0px !important;
 }
@@ -718,7 +745,7 @@
 }
 
 #edit_connection, #close_connection {
-  background: #79589f;
+  background: var(--navbar-color);
   color: #fff;
   border-color: #fff;
 }

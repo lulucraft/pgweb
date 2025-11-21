@@ -74,8 +74,8 @@ function apiCall(method, path, params, cb) {
       "x-session-id": getSessionId()
     },
     success: cb,
-    error: function(xhr, status, data) {
-      switch(status) {
+    error: function (xhr, status, data) {
+      switch (status) {
         case "error":
           if (xhr.readyState == 0) { // 0 = UNSENT
             showErrorBanner("Sorry, something went wrong with your request. Refresh the page and try again!");
@@ -88,8 +88,7 @@ function apiCall(method, path, params, cb) {
       var responseText;
       try {
         responseText = jQuery.parseJSON(xhr.responseText);
-      }
-      catch {
+      } catch {
         responseText = { error: "Failed to parse the JSON response." };
       }
       cb(responseText);
@@ -111,6 +110,7 @@ function getTablesStats(cb)                 { apiCall("get", "/tables_stats", {}
 function getFunction(id, cb)                { apiCall("get", "/functions/" + id, {}, cb); }
 function getHistory(cb)                     { apiCall("get", "/history", {}, cb); }
 function getBookmarks(cb)                   { apiCall("get", "/bookmarks", {}, cb); }
+function getSettings(cb)                    { apiCall("get", "/settings", {}, cb); }
 function executeQuery(query, cb)            { apiCall("post", "/query", { query: query }, cb); }
 function explainQuery(query, cb)            { apiCall("post", "/explain", { query: query }, cb); }
 function analyzeQuery(query, cb)            { apiCall("post", "/analyze", { query: query }, cb); }
@@ -125,7 +125,7 @@ function showErrorBanner(text) {
     clearTimeout(window.errBannerTimeout);
   }
 
-  window.errBannerTimeout = setTimeout(function() {
+  window.errBannerTimeout = setTimeout(function () {
     $("#error_banner").fadeOut("fast").text("");
   }, 3000);
 
@@ -189,21 +189,21 @@ function buildSchemaSection(name, objects) {
 function loadLocalQueries() {
   if (!appFeatures.local_queries) return;
 
-  $("body").on("click", "a.load-local-query", function(e) {
+  $("body").on("click", "a.load-local-query", function (e) {
     var id = $(this).data("id");
 
-    apiCall("get", "/local_queries/" + id, {}, function(resp) {
+    apiCall("get", "/local_queries/" + id, {}, function (resp) {
       editor.setValue(resp.query);
       editor.clearSelection();
     });
   });
 
-  apiCall("get", "/local_queries", {}, function(resp) {
+  apiCall("get", "/local_queries", {}, function (resp) {
     if (resp.error) return;
 
     var container = $("#load-query-dropdown").find(".dropdown-menu");
 
-    resp.forEach(function(item) {
+    resp.forEach(function (item) {
       var title = item.title || item.id;
       $("<li><a href='#' class='load-local-query' data-id='" + item.id + "'>" + title + "</a></li>").appendTo(container);
     });
@@ -216,7 +216,7 @@ function loadLocalQueries() {
 function loadSchemas() {
   $("#objects").html("");
 
-  var emptyObjectList = function() {
+  var emptyObjectList = function () {
     return {
       table: [],
       view: [],
@@ -226,13 +226,13 @@ function loadSchemas() {
     }
   }
 
-  getSchemas(function(schemasData) {
+  getSchemas(function (schemasData) {
     if (schemasData.error) {
       alert("Error while fetching schemas: " + schemasData.error);
       return;
     }
 
-    getObjects(function(data) {
+    getObjects(function (data) {
       if (data.error) {
         alert("Error while fetching database objects: " + data.error);
         return;
@@ -286,7 +286,7 @@ function escapeHtml(str) {
   return "<span class='null'>null</span>";
 }
 
-function unescapeHtml(str){
+function unescapeHtml(str) {
   var e = document.createElement("div");
   e.innerHTML = str;
   return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
@@ -301,11 +301,11 @@ function resetTable() {
   $("#results_body").html("");
   $("#results_view").html("").hide();
 
-  $("#results").
-    data("mode", "").
-    removeClass("empty").
-    removeClass("no-crop").
-    show();
+  $("#results")
+    .data("mode", "")
+    .removeClass("empty")
+    .removeClass("no-crop")
+    .show();
 }
 
 function performTableAction(table, action, el) {
@@ -314,15 +314,15 @@ function performTableAction(table, action, el) {
     if (!confirm(message)) return;
   }
 
-  switch(action) {
+  switch (action) {
     case "truncate":
-      executeQuery("TRUNCATE TABLE " + table, function(data) {
+      executeQuery("TRUNCATE TABLE " + table, function (data) {
         if (data.error) alert(data.error);
         resetTable();
       });
       break;
     case "delete":
-      executeQuery("DROP TABLE " + table, function(data) {
+      executeQuery("DROP TABLE " + table, function (data) {
         if (data.error) alert(data.error);
         loadSchemas();
         resetTable();
@@ -336,13 +336,13 @@ function performTableAction(table, action, el) {
       openInNewWindow("api/query", { "format": format, "filename": filename, "query": query });
       break;
     case "dump":
-      openInNewWindow("api/export", { "table": table });
+      openInNewWindow("api/export", { table: table });
       break;
     case "copy":
       copyToClipboard(table.split('.')[1]);
       break;
     case "analyze":
-      executeQuery("ANALYZE " + table, function(data) {
+      executeQuery("ANALYZE " + table, function (data) {
         if (data.error) alert(data.error);
         resetTable();
       });
@@ -356,9 +356,9 @@ function performViewAction(view, action, el) {
     if (!confirm(message)) return;
   }
 
-  switch(action) {
+  switch (action) {
     case "delete":
-      executeQuery("DROP VIEW " + view, function(data) {
+      executeQuery("DROP VIEW " + view, function (data) {
         if (data.error) alert(data.error);
         loadSchemas();
         resetTable();
@@ -398,7 +398,7 @@ function performViewAction(view, action, el) {
 function performRowAction(action, value) {
   if (action == "stop_query") {
     if (!confirm("Are you sure you want to stop the query?")) return;
-    executeQuery("SELECT pg_cancel_backend(" + value + ");", function(data) {
+    executeQuery("SELECT pg_cancel_backend(" + value + ");", function (data) {
       if (data.error) alert(data.error);
       setTimeout(showActivityPanel, 1000);
     });
@@ -407,7 +407,7 @@ function performRowAction(action, value) {
 
 function editCellValue(context) {
   var cell = $(context);
-  var originalValue = unescapeHtml(cell.find("div").html());
+  var originalValue = unescapeHtml(cell.html());
   var newValue = prompt("Edit cell value:", originalValue);
   if (newValue === null) {
     return; // User cancelled the prompt
@@ -421,13 +421,113 @@ function editCellValue(context) {
   var pkValue     = $("#results_body tr").eq(rowIdx).find("td").eq(0).text();
   var updateQuery = `UPDATE ${tableName} SET "${colName}" = '${newValue}' WHERE "${pkColumn}" = '${pkValue}';`;
 
-  executeQuery(updateQuery, function(data) {
+  executeQuery(updateQuery, function (data) {
     if (data.error) {
       alert("Error updating value: " + data.error);
     } else {
-      cell.find("div").html(escapeHtml(newValue));
+      cell.html(escapeHtml(newValue));
     }
   });
+}
+
+function deleteRow(context) {
+  let cell        = $(context);
+  let $row        = cell.closest("tr");
+  var rowIdx      = $row.index();
+  var tableName   = $("#results").data("table");
+  var pkColumn    = $("#results_header th").eq(0).data("name");
+  var pkValue     = $("#results_body tr").eq(rowIdx).find("td").eq(0).text();
+
+  if ($row.length === 0) {
+    alert("Unable to find the row to delete.");
+    return;
+  }
+
+  // Get the first cell value (usually the row's unique identifier)
+  // let rowId = $row.find("td").first().text().trim();
+
+  if (!tableName) {
+    alert("Cannot delete row: table name is missing.");
+    return;
+  }
+
+  // Confirm deletion
+  if (!confirm("Are you sure you want to delete the row '" + pkValue + "' from table '" + tableName + "'?")) {
+    return;
+  }
+
+  // Build the SQL query
+  let sql = `DELETE FROM ${tableName} WHERE "${pkColumn}" = '${pkValue}'`;
+
+  // Execute query using pgweb’s existing function
+  executeQuery(sql, function (response) {
+    // If executeQuery follows pgweb's usual convention
+    if (response.error) {
+      alert("Error while deleting: " + response.error);
+      $row.removeClass("deleting").css("opacity", "1");
+    } else {
+      // Remove row visually
+      $row.fadeOut(200, function () {
+        $(this).remove();
+      });
+    }
+  });
+}
+
+function insertRow() {
+  const tableName = $("#results").data("table");
+  if (!tableName) {
+    alert("Please select a table!");
+    return;
+  }
+
+  // Get the inputs generated in showInsertRow()
+  const inputs = $("#insert_row input");
+  let columns = [];
+  let values = [];
+
+  inputs.each(function () {
+    const colName = $(this).attr("id");
+    const val = $(this).val();
+
+    columns.push('"' + colName + '"');
+    // Handling NULL values/strings
+    if (val === null || val.trim() === "") {
+      values.push("NULL");
+    } else {
+      values.push("'" + val.replace(/'/g, "''") + "'");
+    }
+  });
+
+  const insertQuery = `INSERT INTO ${tableName} (${columns.join(", ")}) VALUES (${values.join(", ")});`;
+
+  executeQuery(insertQuery, function (data) {
+    if (data.error) {
+      alert("Error while inserting: " + data.error);
+    } else {
+      alert("Row inserted successfully!");
+      // Reload table content to show the new row
+      showTableContent();
+      // Reset form fields
+      // $("#insert_row").html("");
+      showTableRowActions(false);
+      $(".insert_row_btn").show();
+      // $(".save_insert_row_btn").hide();
+    }
+  });
+}
+
+function showInsertRow(columns) {
+  let cols = "";
+  columns.forEach(function (col) {
+    cols += "<div class='text-center'>";
+    cols += "<label id='" + col + "'>" + col + "</label>";
+    cols += "<input type='text' class='form-control' id='" + col + "' placeholder='" + col + "' />";
+    cols += "</div>"
+  });
+
+  $("#insert_row").html(cols);
+  $(".insert_row_btn").hide();
 }
 
 function sortArrow(direction) {
@@ -468,7 +568,7 @@ function buildTable(results, sortColumn, sortOrder, options) {
   var cols = "";
   var rows = "";
 
-  results.columns.forEach(function(col) {
+  results.columns.forEach(function (col) {
     if (col === sortColumn) {
       cols += "<th class='table-header-col active' data-name='" + col + "' data-order=" + sortOrder + ">" + col + "&nbsp;" + sortArrow(sortOrder) + "</th>";
     } else {
@@ -484,12 +584,12 @@ function buildTable(results, sortColumn, sortOrder, options) {
     action.dataColumn = results.columns.indexOf(action.data);
   }
 
-  results.rows.forEach(function(row) {
+  results.rows.forEach(function (row) {
     var r = "";
 
     // Add all actual row data here
     for (i in row) {
-      r += "<td data-col='" + i + "'><div>" + escapeHtml(row[i]) + "</div></td>";
+      r += "<td data-col='" + i + "'>" + escapeHtml(row[i]) + "</td>";
     }
 
     // Add row action button
@@ -509,12 +609,125 @@ function buildTable(results, sortColumn, sortOrder, options) {
   } else {
     $("#result-rows-count").html(results.rows.length + " rows");
   }
+
+  $('.insert_row_btn').on("click", function() {
+    let name = getCurrentObject().name;
+
+    if (name.length == 0) {
+      alert("Please select a table!");
+      return;
+    }
+
+    // if (getCurrentObject().type == "function") {
+    //   // let name = data.rows[0][data.columns.indexOf("proname")];
+    //   let definition = data.rows[0][data.columns.indexOf("functiondef")];
+    //   return
+    // }
+
+    showInsertRow(results.columns);
+  });
+}
+
+// Show the fields to insert new line
+function showInsertRowFromStructure() {
+  const tableName = $("#results").data("table");
+  if (!tableName) {
+    alert("Please select a table!");
+    return;
+  }
+
+  getTableStructure(tableName, { type: getCurrentObject().type }, function (data) {
+    if (data.error) {
+      alert("Error when trying to get the structure : " + data.error);
+      return;
+    }
+
+    const columns = data.columns;
+    const rows = data.rows || [];
+    if (rows.length === 0) {
+      alert("No column found for table " + tableName);
+      return;
+    }
+
+    // Transform lines in key/value object to improve visibility
+    const colObjects = rows.map((row) => {
+      const obj = {};
+      columns.forEach((colName, i) => (obj[colName] = row[i]));
+      return obj;
+    });
+
+    let html = `<tr>`;
+
+    colObjects.forEach((col) => {
+      const name = col.column_name;
+      const type = col.data_type;
+      const nullable = col.is_nullable === "NO" ? " (NOT NULL)" : "";
+      const placeholder = `${type}${nullable}`;
+      html += `
+      <td>
+        <input 
+          type="text" 
+          id="${name}" 
+          class="form-control"
+          placeholder="${placeholder}"
+        />
+      </td>`;
+    });
+
+    html += `
+    <td>
+      <button class="btn btn-success" onclick="insertRowFromInputs('${tableName}')">
+        <i class="fa fa-save"></i>
+        Insert
+      </button>
+    </td>
+  </tr>`;
+
+    $("#insert_row").show();
+    $("#insert_row").html(
+      `<table class="table table-bordered" style="margin-bottom:0"><tbody>${html}</tbody></table>`
+    );
+  });
+}
+
+// Insert the line in the database from the inputs
+function insertRowFromInputs(tableName) {
+  const inputs = $("#insert_row input");
+  let columns = [];
+  let values = [];
+
+  inputs.each(function () {
+    const colName = $(this).attr("id");
+    const val = $(this).val();
+
+    columns.push(`"${colName}"`);
+    if (val === null || val.trim() === "") {
+      values.push("NULL");
+    } else {
+      values.push("'" + val.replace(/'/g, "''") + "'");
+    }
+  });
+
+  const insertQuery = `INSERT INTO ${tableName} (${columns.join(", ")}) VALUES (${values.join(", ")});`;
+
+  executeQuery(insertQuery, function (data) {
+    if (data.error) {
+      alert("Error while inserting: " + data.error);
+    } else {
+      alert("Row inserted successfully!");
+      showTableContent(); // reload table
+      // $("#insert_row").html(""); // clear insert zone
+    }
+  });
 }
 
 function setCurrentTab(id) {
   // Pagination should only be visible on rows tab
   if (id != "table_content") {
     $("#body").removeClass("with-pagination");
+    showTableRowActions(false);
+  } else {
+    showTableRowActions(true);
   }
 
   $("#nav ul li.selected").removeClass("selected");
@@ -524,11 +737,21 @@ function setCurrentTab(id) {
   sessionStorage.setItem("tab", id);
 }
 
+function showTableRowActions(show) {
+  if (show) {
+    $(".table-row-actions").show();
+    $(".insert_row_btn").show();
+  } else {
+    $(".table-row-actions").hide();
+  }
+  $("#insert_row").hide();
+}
+
 function showQueryHistory() {
-  getHistory(function(data) {
+  getHistory(function (data) {
     var rows = [];
 
-    for(i in data) {
+    for (i in data) {
       rows.unshift([parseInt(i) + 1, data[i].query, data[i].timestamp]);
     }
 
@@ -549,7 +772,7 @@ function showTableIndexes() {
     return;
   }
 
-  getTableIndexes(name, function(data) {
+  getTableIndexes(name, function (data) {
     setCurrentTab("table_indexes");
     buildTable(data);
 
@@ -567,7 +790,7 @@ function showTableConstraints() {
     return;
   }
 
-  getTableConstraints(name, function(data) {
+  getTableConstraints(name, function (data) {
     setCurrentTab("table_constraints");
     buildTable(data);
 
@@ -585,7 +808,7 @@ function showTableInfo() {
     return;
   }
 
-  apiCall("get", "/tables/" + name + "/info", {}, function(data) {
+  apiCall("get", "/tables/" + name + "/info", {}, function (data) {
     $(".table-information .lines").show();
     $("#table_total_size").text(data.total_size);
     $("#table_data_size").text(data.data_size);
@@ -605,21 +828,19 @@ function updatePaginator(pagination) {
     return;
   }
 
-  $(".current-page").
-    data("page", pagination.page).
-    data("pages", pagination.pages_count);
+  $(".current-page")
+    .data("page", pagination.page)
+    .data("pages", pagination.pages_count);
 
   if (pagination.page > 1) {
     $(".prev-page").prop("disabled", "");
-  }
-  else {
+  } else {
     $(".prev-page").prop("disabled", "disabled");
   }
 
   if (pagination.pages_count > 1 && pagination.page < pagination.pages_count) {
     $(".next-page").prop("disabled", "");
-  }
-  else {
+  } else {
     $(".next-page").prop("disabled", "disabled");
   }
 
@@ -664,7 +885,7 @@ function showTableContent(sortColumn, sortOrder) {
     opts["where"] = where;
   }
 
-  getTableRows(name, opts, function(data) {
+  getTableRows(name, opts, function (data) {
     $("#input").hide();
     $("#body").prop("class", "with-pagination");
 
@@ -673,6 +894,56 @@ function showTableContent(sortColumn, sortOrder) {
     updatePaginator(data.pagination);
 
     $("#results").data("mode", "browse").data("table", name);
+  });
+}
+
+function showTableContentInModal(tableName, sortColumn, sortOrder) {
+  if (!tableName) {
+    alert("Invalide table");
+    return;
+  }
+
+  if (getCurrentObject().type == "function") {
+    alert("Cant view rows for a function");
+    return;
+  }
+
+  var opts = {
+    limit: getRowsLimit(),
+    offset: getPaginationOffset(),
+    sort_column: sortColumn,
+    sort_order: sortOrder,
+  };
+
+  getTableRows(tableName, opts, function (data) {
+    // On construit le contenu HTML de la table
+    var tableHtml = $("<div>");
+    buildTable(data, sortColumn, sortOrder);
+    tableHtml.append($("#results").html()); // réutilisation du contenu
+
+    // Création de la modale
+    var modal = $(`
+      <div class="modal-overlay">
+        <div class="modal">
+          <div class="modal-header">
+            <h3>Contenu de la table: ${name}</h3>
+            <span class="modal-close">&times;</span>
+          </div>
+          <div class="modal-body"></div>
+        </div>
+      </div>
+    `);
+
+    // Injecte le contenu
+    modal.find(".modal-body").html(tableHtml);
+
+    // Ferme la modale
+    modal.find(".modal-close").on("click", function () {
+      modal.remove();
+    });
+
+    // Ajoute au DOM
+    $("body").append(modal);
   });
 }
 
@@ -690,7 +961,7 @@ function showPaginatedTableContent() {
 }
 
 function showDatabaseStats() {
-  getTablesStats(function(data) {
+  getTablesStats(function (data) {
     buildTable(data);
 
     setCurrentTab("table_structure");
@@ -705,7 +976,7 @@ function downloadDatabaseStats() {
 }
 
 function showServerSettings() {
-  getServerSettings(function(data) {
+  getServerSettings(function (data) {
     buildTable(data);
 
     setCurrentTab("table_content");
@@ -728,12 +999,12 @@ function showTableStructure() {
   $("#input").hide();
   $("#body").prop("class", "full");
 
-  getTableStructure(name, { type: getCurrentObject().type }, function(data) {
+  getTableStructure(name, { type: getCurrentObject().type }, function (data) {
     if (getCurrentObject().type == "function") {
       var name = data.rows[0][data.columns.indexOf("proname")];
       var definition = data.rows[0][data.columns.indexOf("functiondef")];
       showFunctionDefinition(name, definition);
-      return
+      return;
     }
 
     buildTable(data);
@@ -760,10 +1031,10 @@ function renderResultsView(title, content) {
   var title = $("<div/>").prop("class", "title").html(title);
   var content = $("<pre/>").text(content);
 
-  $("<div/>").
-    html("<i class='fa fa-copy'></i>").
-    addClass("copy").
-    appendTo(content);
+  $("<div/>")
+    .html("<i class='fa fa-copy'></i>")
+    .addClass("copy")
+    .appendTo(content);
 
   $("#results_view").html("");
   title.appendTo("#results_view");
@@ -780,7 +1051,7 @@ function showQueryPanel() {
   editor.focus();
 
   $("#input").show();
-  $("#body").prop("class", "")
+  $("#body").prop("class", "");
 }
 
 function showConnectionPanel() {
@@ -788,10 +1059,10 @@ function showConnectionPanel() {
   $("#input").hide();
   $("#body").addClass("full");
 
-  getConnection(function(data) {
+  getConnection(function (data) {
     var rows = [];
 
-    for(key in data) {
+    for (key in data) {
       rows.push([key, data[key]]);
     }
 
@@ -816,7 +1087,7 @@ function showActivityPanel() {
   $("#input").hide();
   $("#body").addClass("full");
 
-  apiCall("get", "/activity", {}, function(data) {
+  apiCall("get", "/activity", {}, function (data) {
     buildTable(data, null, null, options);
   });
 }
@@ -851,7 +1122,7 @@ function getEditorSelection() {
         editor.selection.setSelectionRange({
           start: { row: subquery.startRow, column: 0 },
           end: { row: subquery.endRow, column: 0 },
-        })
+        });
       }
 
       return subquery.text;
@@ -908,7 +1179,7 @@ function runQuery() {
     return;
   }
 
-  executeQuery(query, function(data) {
+  executeQuery(query, function (data) {
     buildTable(data);
 
     hideQueryProgressMessage();
@@ -937,7 +1208,7 @@ function runExplain() {
     return;
   }
 
-  explainQuery(query, function(data) {
+  explainQuery(query, function (data) {
     buildTable(data);
 
     hideQueryProgressMessage();
@@ -957,7 +1228,7 @@ function runAnalyze() {
     return;
   }
 
-  analyzeQuery(query, function(data) {
+  analyzeQuery(query, function (data) {
     buildTable(data);
 
     hideQueryProgressMessage();
@@ -996,9 +1267,9 @@ function exportTo(format) {
   setCurrentTab("table_query");
 
   openInNewWindow("api/query", {
-    "format": format,
-    "query": encodeQuery(query)
-  })
+    format: format,
+    query: encodeQuery(query),
+  });
 }
 
 // Fetch all unique values for the selected column in the table
@@ -1011,11 +1282,45 @@ function showUniqueColumnsValues(table, column, showCounts) {
     query = 'SELECT DISTINCT "' + column + '", COUNT(1) AS total_count FROM ' + table + ' GROUP BY "' + column + '" ORDER BY total_count DESC';
   }
 
-  executeQuery(query, function(data) {
+  executeQuery(query, function (data) {
     $("#input").hide();
     $("#body").prop("class", "full");
     $("#results").data("mode", "query");
     buildTable(data);
+  });
+}
+
+function findForeignKey(tableName, columnName, callback) {
+  var sql = `
+    SELECT
+        tc.constraint_name,
+        kcu.column_name,
+        ccu.table_name  AS foreign_table,
+        ccu.column_name AS foreign_column
+    FROM
+        information_schema.table_constraints AS tc
+        JOIN information_schema.key_column_usage AS kcu
+          ON tc.constraint_name = kcu.constraint_name
+         AND tc.table_schema = kcu.table_schema
+        JOIN information_schema.constraint_column_usage AS ccu
+          ON ccu.constraint_name = tc.constraint_name
+         AND ccu.table_schema = tc.table_schema
+    WHERE
+        tc.constraint_type = 'FOREIGN KEY'
+        AND kcu.table_name = '${tableName.replace("public.", "")}'
+        AND kcu.column_name = '${columnName}';
+  `;
+  // AND tc.table_schema = 'public'
+
+  executeQuery(sql, function (data) {
+    if (data.error) {
+      console.error("Error finding foreign key:", data.error);
+      callback(null);
+    } else if (data.columns && data.rows && data.rows.length) {
+      callback(data); // return first FK found
+    } else {
+      callback(null); // no FK
+    }
   });
 }
 
@@ -1032,11 +1337,10 @@ function showFieldNumStats(table, column) {
 }
 
 function buildTableFilters(name, type) {
-  getTableStructure(name, { type: type }, function(data) {
+  getTableStructure(name, { type: type }, function (data) {
     if (data.rows.length == 0) {
       $("#pagination .filters").hide();
-    }
-    else {
+    } else {
       $("#pagination .filters").show();
     }
 
@@ -1094,12 +1398,12 @@ function initEditor() {
     }
   }]);
 
-  editor.on("change", function() {
+  editor.on("change", function () {
     if (writeQueryTimeout) {
       clearTimeout(writeQueryTimeout);
     }
 
-    writeQueryTimeout = setTimeout(function() {
+    writeQueryTimeout = setTimeout(function () {
       localStorage.setItem("pgweb_query", editor.getValue());
     }, 1000);
   });
@@ -1115,8 +1419,7 @@ function addShortcutTooltips() {
   if (navigator.userAgent.indexOf("OS X") > 0) {
     $("#run").attr("title", "Shortcut: ⌘+Enter");
     $("#explain").attr("title", "Shortcut: ⌘+E");
-  }
-  else {
+  } else {
     $("#run").attr("title", "Shortcut: Ctrl+Enter");
     $("#explain").attr("title", "Shortcut: Ctrl+E");
   }
@@ -1146,7 +1449,7 @@ function showConnectionSettings() {
   // Check github release page for updates
   getLatestReleaseInfo(appInfo);
 
-  getBookmarks(function(data) {
+  getBookmarks(function (data) {
     if (data.error) {
       console.log("Error while fetching bookmarks:", data.error);
       return;
@@ -1168,8 +1471,7 @@ function showConnectionSettings() {
       }
 
       $(".bookmarks").show();
-    }
-    else {
+    } else {
       if (appFeatures.bookmarks_only) {
         $("#connection_error").html("Running in <b>bookmarks-only</b> mode but <b>NO</b> bookmarks configured.").show();
         $(".open-connection").hide();
@@ -1230,7 +1532,7 @@ function bindTableHeaderMenu() {
   $("#results_header").contextmenu({
     scopes: "th",
     target: "#results_header_menu",
-    before: function(e, element, target) {
+    before: function (e, element, target) {
       // Enable menu for browsing table rows view only.
       if ($("#results").data("mode") != "browse") {
         e.preventDefault();
@@ -1238,10 +1540,10 @@ function bindTableHeaderMenu() {
         return false;
       }
     },
-    onItem: function(context, e) {
+    onItem: function (context, e) {
       var menuItem = $(e.target);
 
-      switch(menuItem.data("action")) {
+      switch (menuItem.data("action")) {
         case "copy_name":
           copyToClipboard($(context).data("name"));
           break;
@@ -1267,7 +1569,7 @@ function bindTableHeaderMenu() {
   $("#results_body").contextmenu({
     scopes: "td",
     target: "#results_row_menu",
-    before: function(e, element, target) {
+    before: function (e, element, target) {
       var browseMode = $("#results").data("mode");
       var isEmpty    = $("#results").hasClass("empty");
       var isAllowed  = browseMode == "browse" || browseMode == "query";
@@ -1278,10 +1580,10 @@ function bindTableHeaderMenu() {
         return false;
       }
     },
-    onItem: function(context, e) {
+    onItem: function (context, e) {
       var menuItem = $(e.target);
 
-      switch(menuItem.data("action")) {
+      switch (menuItem.data("action")) {
         case "edit_value":
           editCellValue(context);
           break;
@@ -1302,6 +1604,10 @@ function bindTableHeaderMenu() {
           $("select.filter").val("equal");
           $("#table_filter_value").val(colValue);
           $("#rows_filter").submit();
+          break;
+        case "delete_row":
+          deleteRow(context);
+          break;
       }
     }
   });
@@ -1310,10 +1616,10 @@ function bindTableHeaderMenu() {
 function bindCurrentDatabaseMenu() {
   $("#current_database").contextmenu({
     target: "#current_database_context_menu",
-    onItem: function(context, e) {
+    onItem: function (context, e) {
       var menuItem = $(e.target);
 
-      switch(menuItem.data("action")) {
+      switch (menuItem.data("action")) {
         case "show_db_stats":
           showDatabaseStats();
           break;
@@ -1348,12 +1654,12 @@ function bindDatabaseObjectsFilter() {
     $(".clear-objects-filter").show();
     $(".schema-group").addClass("expanded");
 
-    filterTimeout = setTimeout(function() {
-      filterObjectsByName(val)
+    filterTimeout = setTimeout(function () {
+      filterObjectsByName(val);
     }, 200);
   });
 
-  $(".clear-objects-filter").on("click", function(e) {
+  $(".clear-objects-filter").on("click", function (e) {
     resetObjectsFilter();
   });
 }
@@ -1389,7 +1695,7 @@ function bindContextMenus() {
   bindTableHeaderMenu();
   bindCurrentDatabaseMenu();
 
-  $(".schema-group ul").each(function(id, el) {
+  $(".schema-group ul").each(function (id, el) {
     var group = $(el).data("group");
 
     if (group == "table") {
@@ -1453,7 +1759,7 @@ function enableDatabaseSearch(data) {
 
   input.typeahead("lookup").focus();
 
-  input.on("focusout", function(e){
+  input.on("focusout", function (e) {
     toggleDatabaseSearch();
     input.off("focusout");
   });
@@ -1531,14 +1837,14 @@ function onInputResize(event) {
 function bindContentModalEvents() {
   var contentModal = document.getElementById("content_modal");
 
-  $(window).on("click", function(e) {
+  $(window).on("click", function (e) {
     // Automatically hide the modal on any click outside of the modal window
     if (e.target && !contentModal.contains(e.target)) {
       $("#content_modal").hide();
     }
   });
 
-  $("#content_modal .content-modal-action").on("click", function() {
+  $("#content_modal .content-modal-action").on("click", function () {
     switch ($(this).data("action")) {
       case "copy":
         copyToClipboard($("#content_modal pre").text());
@@ -1549,16 +1855,106 @@ function bindContentModalEvents() {
     }
   });
 
-  $("#results").on("dblclick", "td > div", function() {
-    var value = unescapeHtml($(this).html());
-    if (!value) return;
+  $("#results").on("dblclick", "td", function () {
+    // var value = unescapeHtml($(this).html());
+    // if (!value) return;
 
-    $("#content_modal pre").html(value);
-    $("#content_modal").show();
-  })
+    // $("#content_modal pre").html(value);
+    // $("#content_modal").show();
+
+    let browseMode = $("#results").data("mode");
+    let isEmpty = $("#results").hasClass("empty");
+    let isAllowed = browseMode == "browse" || browseMode == "query";
+    if (isEmpty || !isAllowed) {
+      return;
+    }
+
+    let cell = $(this);
+
+    let cellValue = cell.text().trim();
+    if (!cellValue || cellValue === "null") {
+      return;
+    }
+
+    let colIdx = cell.index();
+    let tableName = $("#results").data("table");
+    let colName = $("#results_header th").eq(colIdx).data("name");
+
+    findForeignKey(tableName, colName, function (data) {
+      if (!data) {
+        alert("No foreign key for column: " + colName);
+        return;
+      }
+
+      const fk = data.rows[0];
+
+      // Find index of foreign key table in data
+      const fkTableIdx = data.columns.indexOf("foreign_table");
+      const fkTable = fk[fkTableIdx];
+      // Find index of foreign key column in data
+      const fkColumnIdx = data.columns.indexOf("foreign_column");
+      const fkColumn = fk[fkColumnIdx];
+
+      // Now fetch the referenced row from the foreign table
+      let sql = `SELECT * FROM "${fkTable}" WHERE "${fkColumn}" = '${cellValue}' LIMIT 100;`;
+
+      executeQuery(sql, function (data) {
+        if (data.error) {
+          alert("Error fetching related data: " + data.error);
+        } else {
+          // Display in modal
+          // showDataInModal(data);
+          // showTableContentInModal(fkTable, fkColumn, cellValue);
+          const row = data.rows[0];
+
+          const formatted = Object.fromEntries(
+            data.columns.map((col, i) => [col, row[i]])
+          );
+
+          $("#content_modal .content").html(
+            '<table style="width:100%;border-collapse:collapse;font-family:Arial, sans-serif;">' +
+              Object.entries(formatted).map(([key, value]) => {
+                const isFkKey = (key === fkColumn);
+                return (
+                '<tr>' +
+                  '<td style="padding:8px 10px; background:#f3f4f6; font-weight:600; color:#374151; border:1px solid #dddddd75; width:30%;">' + 
+                    (isFkKey ? `<span style="font-weight:600;">${key}</span><span style="margin-left:2px;">🔗</span>` : key) +
+                  '</td>' +
+                  '<td style="padding:8px 10px; background:white; color:#111827; border:1px solid #dddddd75;">' +
+                    (isFkKey ? `<b>${value}</b>` : value) +
+                  '</td>' +
+                '</tr>'
+                );
+              }
+              ).join('') +
+            '</table>'
+          );
+
+          $("#content_modal").show();
+        }
+      });
+    });
+
+    // showTableContentInModal(tableName);
+  });
 }
 
-$(document).ready(function() {
+function loadSettings() {
+  getSettings(function (data) {
+    if (data.error) {
+      console.log("Error while fetching app settings:", data.error);
+      return;
+    }
+
+    if (data) {
+      // Set appSettings in global var
+      // appSettings = data;
+      applySettings(data);
+    }
+  });
+}
+
+$(document).ready(function () {
   bindInputResizeEvents();
   bindContentModalEvents();
 
@@ -1571,48 +1967,48 @@ $(document).ready(function() {
   $("#table_connection").on("click",  function() { showConnectionPanel();  });
   $("#table_activity").on("click",    function() { showActivityPanel();    });
 
-  $("#run").on("click", function() {
+  $("#run").on("click", function () {
     runQuery();
   });
 
-  $("#explain").on("click", function() {
+  $("#explain").on("click", function () {
     runExplain();
   });
 
-  $("#analyze").on("click", function() {
+  $("#analyze").on("click", function () {
     runAnalyze();
   });
 
-  $("#csv").on("click", function() {
+  $("#csv").on("click", function () {
     exportTo("csv");
   });
 
-  $("#json").on("click", function() {
+  $("#json").on("click", function () {
     exportTo("json");
   });
 
-  $("#xml").on("click", function() {
+  $("#xml").on("click", function () {
     exportTo("xml");
   });
 
-  $("#results_view").on("click", ".copy", function() {
+  $("#results_view").on("click", ".copy", function () {
     copyToClipboard($(this).parent().text());
   });
 
-  $("#results").on("click", "tr", function(e) {
+  $("#results").on("click", "tr", function (e) {
     $("#results tr.selected").removeClass();
     $(this).addClass("selected");
   });
 
-  $("#objects").on("click", ".schema-group-title", function(e) {
+  $("#objects").on("click", ".schema-group-title", function (e) {
     $(this).parent().toggleClass("expanded");
   });
 
-  $("#objects").on("click", ".schema-name", function(e) {
+  $("#objects").on("click", ".schema-name", function (e) {
     $(this).parent().toggleClass("expanded");
   });
 
-  $("#objects").on("click", "li", function(e) {
+  $("#objects").on("click", "li", function (e) {
     currentObject = {
       name: $(this).data("id"),
       type: $(this).data("type")
@@ -1629,7 +2025,7 @@ $(document).ready(function() {
       showTableInfo();
     }
 
-    switch(sessionStorage.getItem("tab")) {
+    switch (sessionStorage.getItem("tab")) {
       case "table_content":
         showTableContent();
         break;
@@ -1647,16 +2043,16 @@ $(document).ready(function() {
     }
   });
 
-  $("#results").on("click", "a.row-action", function(e) {
+  $("#results").on("click", "a.row-action", function (e) {
     e.preventDefault();
 
     var action = $(this).data("action");
     var value  = $(this).data("value");
 
     performRowAction(action, value);
-  })
+  });
 
-  $("#results").on("click", "th", function(e) {
+  $("#results").on("click", "th", function (e) {
     if (!$("#table_content").hasClass("selected")) return;
 
     var sortColumn = $(this).data("name");
@@ -1666,27 +2062,27 @@ $(document).ready(function() {
     showTableContent(sortColumn, sortOrder);
   });
 
-  $("#refresh_tables").on("click", function() {
+  $("#refresh_tables").on("click", function () {
     loadSchemas();
   });
 
-  $("#rows_filter").on("submit", function(e) {
+  $("#rows_filter").on("submit", function (e) {
     e.preventDefault();
     $(".current-page").data("page", 1);
 
     var column = $(this).find("select.column").val();
     var filter = $(this).find("select.filter").val();
-    var query  = $.trim($(this).find("input").val());
+    var query = $.trim($(this).find("input").val());
 
     if (filter && filterOptions[filter].indexOf("DATA") > 0 && query == "") {
       alert("Please specify filter query");
-      return
+      return;
     }
 
     showTableContent();
   });
 
-  $(".change-limit").on("click", function() {
+  $(".change-limit").on("click", function () {
     var limit = prompt("Please specify a new rows limit", getRowsLimit());
 
     if (limit && limit >= 1) {
@@ -1696,33 +2092,32 @@ $(document).ready(function() {
     }
   });
 
-  $("select.filter").on("change", function(e) {
+  $("select.filter").on("change", function (e) {
     var val = $(this).val();
 
     if (["null", "not_null"].indexOf(val) >= 0) {
       $(".filters input").hide().val("");
-    }
-    else {
+    } else {
       $(".filters input").show();
     }
   });
 
-  $("button.reset-filters").on("click", function() {
+  $("button.reset-filters").on("click", function () {
     $(".filters select, .filters input").val("");
     showTableContent();
   });
 
   // Automatically prefill the filter if it's not set yet
-  $("select.column").on("change", function() {
+  $("select.column").on("change", function () {
     if ($("select.filter").val() == "") {
       $("select.filter").val("equal");
       $("#table_filter_value").focus();
     }
   });
 
-  $("#pagination .next-page").on("click", function() {
+  $("#pagination .next-page").on("click", function () {
     var current = $(".current-page").data("page");
-    var total   = $(".current-page").data("pages");
+    var total = $(".current-page").data("pages");
 
     if (total > current) {
       $(".current-page").data("page", current + 1);
@@ -1738,7 +2133,7 @@ $(document).ready(function() {
     }
   });
 
-  $("#pagination .prev-page").on("click", function() {
+  $("#pagination .prev-page").on("click", function () {
     var current = $(".current-page").data("page");
 
     if (current > 1) {
@@ -1752,27 +2147,27 @@ $(document).ready(function() {
     }
   });
 
-  $("#current_database").on("click", function(e) {
-    apiCall("get", "/databases", {}, function(resp) {
+  $("#current_database").on("click", function (e) {
+    apiCall("get", "/databases", {}, function (resp) {
       toggleDatabaseSearch();
       enableDatabaseSearch(resp);
     });
   });
 
-  $("#database_search").change(function(e) {
+  $("#database_search").change(function (e) {
     var current = $("#database_search").typeahead("getActive");
     if (current && current == $("#database_search").val()) {
-      apiCall("post", "/switchdb", { db: current }, function(resp) {
+      apiCall("post", "/switchdb", { db: current }, function (resp) {
         if (resp.error) {
           alert(resp.error);
           return;
-        };
+        }
         window.location.reload();
       });
-    };
+    }
   });
 
-  $("#edit_connection").on("click", function() {
+  $("#edit_connection").on("click", function () {
     if (connected) {
       $("#close_connection_window").show();
     }
@@ -1780,27 +2175,27 @@ $(document).ready(function() {
     showConnectionSettings();
   });
 
-  $("#close_connection").on("click", function() {
+  $("#close_connection").on("click", function () {
     if (!confirm("Are you sure you want to disconnect?")) return;
 
-    disconnect(function() {
+    disconnect(function () {
       showConnectionSettings();
       resetTable();
       $("#close_connection_window").hide();
     });
   });
 
-  $("#close_connection_window").on("click", function() {
+  $("#close_connection_window").on("click", function () {
     $("#connection_window").hide();
   });
 
-  $("#connection_url").on("change", function() {
+  $("#connection_url").on("change", function () {
     if ($(this).val().indexOf("localhost") != -1) {
       $("#connection_ssl").val("disable");
     }
   });
 
-  $("#pg_host").on("change", function() {
+  $("#pg_host").on("change", function () {
     var value = $(this).val();
 
     if (value.indexOf("localhost") != -1 || value.indexOf("127.0.0.1") != -1) {
@@ -1808,11 +2203,11 @@ $(document).ready(function() {
     }
   });
 
-  $(".connection-group-switch button").on("click", function() {
+  $(".connection-group-switch button").on("click", function () {
     $(".connection-group-switch button").removeClass("active");
     $(this).addClass("active");
 
-    switch($(this).attr("data")) {
+    switch ($(this).attr("data")) {
       case "scheme":
         $(".connection-scheme-group").show();
         $(".connection-standard-group").hide();
@@ -1831,7 +2226,7 @@ $(document).ready(function() {
     }
   });
 
-  $("#connection_bookmarks").on("change", function(e) {
+  $("#connection_bookmarks").on("change", function (e) {
     var selection = $(this).val();
 
     var inputs = [
@@ -1840,12 +2235,12 @@ $(document).ready(function() {
       $("#connection_ssl")
     ];
 
-    inputs.forEach(function(selector) {
+    inputs.forEach(function (selector) {
       selector.val("").prop("disabled", selection == "" ? "" : "disabled");
     });
   });
 
-  $("#connection_form").on("submit", function(e) {
+  $("#connection_form").on("submit", function (e) {
     e.preventDefault();
 
     var button = $(this).find("button.open-connection");
@@ -1854,8 +2249,7 @@ $(document).ready(function() {
 
     if (bookmarkID != "") {
       params["bookmark_id"] = $("#connection_bookmarks").val();
-    }
-    else {
+    } else {
       params.url = getConnectionString();
       if (params.url.length == 0) {
         return;
@@ -1875,14 +2269,13 @@ $(document).ready(function() {
     $("#connection_error").hide();
     button.prop("disabled", true).text("Please wait...");
 
-    apiCall("post", "/connect", params, function(resp) {
+    apiCall("post", "/connect", params, function (resp) {
       button.prop("disabled", false).text("Connect");
 
       if (resp.error) {
         connected = false;
         $("#connection_error").text(resp.error).show();
-      }
-      else {
+      } else {
         connected = true;
         loadSchemas();
         loadLocalQueries();
@@ -1894,6 +2287,7 @@ $(document).ready(function() {
     });
   });
 
+  loadSettings();
   initEditor();
   addShortcutTooltips();
   bindDatabaseObjectsFilter();
@@ -1907,7 +2301,7 @@ $(document).ready(function() {
     window.history.pushState({}, document.title, window.location.pathname);
   }
 
-  getInfo(function(resp) {
+  getInfo(function (resp) {
     if (resp.error) {
       alert("Unable to fetch app info: " + resp.error + ". Please reload the browser page.");
       return;
@@ -1916,7 +2310,7 @@ $(document).ready(function() {
     appInfo = resp.app;
     appFeatures = resp.features;
 
-    getConnection(function(resp) {
+    getConnection(function (resp) {
       if (resp.error) {
         connected = false;
         showConnectionSettings();
@@ -1937,4 +2331,3 @@ $(document).ready(function() {
     });
   });
 });
-
